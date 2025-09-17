@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DPS VALORANT CHAMPIONS</title>
+    <link rel="icon" href="assets/logo.png" type="image/png">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <nav class="top-nav">
+            <div class="nav-container">
+                <a href="index.html" class="logo">DPS VALORANT CHAMPIONS</a>
+                <button class="hamburger-menu" id="hamburger-menu">&#9776;</button>
+                <ul class="nav-links" id="nav-links">
+                    <li><a href="index.html">홈</a></li>
+                    <li><a href="apply.html" class="active">대회 신청</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="container">
+            <div id="agreement-section">
+                <h1>대회 참가 약관 동의</h1>
+                <div class="agreement-box">
+                    <h2>확인할 사항</h2>
+                    <div id="agreement-content-check" class="agreement-content"></div>
+                    <div class="form-check">
+                        <input type="checkbox" id="agree-check1" class="agreement-check">
+                        <label for="agree-check1">위 내용을 확인했으며, 이에 동의합니다.</label>
+                    </div>
+                </div>
+                <div class="agreement-box">
+                    <h2>대회 참가 약관</h2>
+                    <div id="agreement-content-conditions" class="agreement-content"></div>
+                    <div class="form-check">
+                        <input type="checkbox" id="agree-check2" class="agreement-check">
+                        <label for="agree-check2">위 내용을 확인했으며, 이에 동의합니다.</label>
+                    </div>
+                </div>
+                <div class="agreement-box">
+                    <h2>경기 중 행동 강령</h2>
+                    <div id="agreement-content-coc" class="agreement-content"></div>
+                    <div class="form-check">
+                        <input type="checkbox" id="agree-check3" class="agreement-check">
+                        <label for="agree-check3">위 내용을 확인했으며, 이에 동의합니다.</label>
+                    </div>
+                </div>
+                <div class="agreement-box">
+                    <h2>개인정보 처리방침</h2>
+                    <div id="agreement-content-privacy" class="agreement-content"></div>
+                    <div class="form-check">
+                        <input type="checkbox" id="agree-check4" class="agreement-check">
+                        <label for="agree-check4">위 내용을 확인했으며, 이에 동의합니다.</label>
+                    </div>
+                </div>
+                <button id="next-btn" class="btn" disabled>다음</button>
+            </div>
+
+            <div class="form-box" id="form-section" style="display: none;">
+                <h1>대회 참가 신청</h1>
+                <form id="apply-form">
+                    <div class="form-group">
+                        <label for="applicant-name">신청자 본인 이름 (반드시 실명 입력)</label>
+                        <input type="text" id="applicant-name" name="applicant-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contact">디스코드 사용자명 또는 전화번호</label>
+                        <input type="text" id="contact" name="contact" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="class">학반</label>
+                        <select id="class" name="class" required>
+                            <option value="" disabled selected>학반을 선택하세요</option>
+                            <option value="1">1반</option>
+                            <option value="2">2반</option>
+                            <option value="3">3반</option>
+                            <option value="4">4반</option>
+                            <option value="5">5반</option>
+                            <option value="6">6반</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="riot-id">RIOT ID + 태그 (예: DPS#KR1)</label>
+                        <input type="text" id="riot-id" name="riot-id" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="current-tier">본인의 현재 발로란트 티어</label>
+                        <select id="current-tier" name="current-tier" required>
+                            <option value="" disabled selected>티어를 선택하세요</option>
+                            <option value="없음">없음</option>
+                            <option value="아이언">아이언</option>
+                            <option value="브론즈">브론즈</option>
+                            <option value="실버">실버</option>
+                            <option value="골드">골드</option>
+                            <option value="플래티넘">플래티넘</option>
+                            <option value="다이아몬드">다이아몬드</option>
+                            <option value="초월자">초월자</option>
+                            <option value="불멸">불멸</option>
+                            <option value="레디언트">레디언트</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="peak-tier">본인의 최대 발로란트 티어</label>
+                        <select id="peak-tier" name="peak-tier" required>
+                            <option value="" disabled selected>티어를 선택하세요</option>
+                            <option value="없음">없음</option>
+                            <option value="아이언">아이언</option>
+                            <option value="브론즈">브론즈</option>
+                            <option value="실버">실버</option>
+                            <option value="골드">골드</option>
+                            <option value="플래티넘">플래티넘</option>
+                            <option value="다이아몬드">다이아몬드</option>
+                            <option value="초월자">초월자</option>
+                            <option value="불멸">불멸</option>
+                            <option value="레디언트">레디언트</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn">신청서 제출</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 DPS Team. All rights reserved.</p>
+        <p><a href="admin-login.html" class="admin-link">관리자</a></p>
+    </footer>
+
+    <!-- Custom Modal -->
+    <div class="modal-overlay" id="custom-modal">
+        <div class="modal-popup">
+            <div class="modal-spinner" id="modal-spinner"></div>
+            <p id="modal-message"></p>
+            <button class="btn btn-small" id="modal-close-btn">확인</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script type="module" src="js/apply.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>DPS VALORANT CHAMPIONS</title>
+    <link rel="icon" href="assets/logo.png" type="image/png">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body style="display: flex; justify-content: center; align-items: center; height: 100vh;">
+
+    <div class="form-box" style="max-width: 400px;">
+        <h1>관리자 인증 필요</h1>
+        <form id="login-form">
+            <div class="form-group">
+                <label for="password">비밀번호</label>
+                <input type="password" id="password" required>
+            </div>
+            <button type="submit" class="btn">로그인</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('login-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const password = document.getElementById('password').value;
+            // IMPORTANT: This is not a secure way to handle passwords.
+            // For demonstration purposes only.
+            if (password === 'wjstksqhdks') {
+                window.location.href = 'admin.html';
+            } else {
+                alert('비밀번호가 틀렸습니다.');
+            }
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,97 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="assets/logo.png" type="image/png">
+    <title>DPS VALORANT CHAMPIONS</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <nav class="top-nav">
+            <div class="nav-container">
+                <a href="index.html" class="logo">ADMIN - DPS VALORANT</a>
+                <ul class="nav-links">
+                    <li><a href="index.html">홈으로</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="container">
+            <h1>관리자 페이지</h1>
+
+            <div class="tabs">
+                <button class="tab-link active" data-tab="applications">참가 신청 관리</button>
+                <button class="tab-link" data-tab="terms">약관 관리</button>
+            </div>
+
+            <div id="applications" class="tab-content active">
+                <h2>참가 신청 목록</h2>
+                <div class="table-container">
+                    <table class="applicant-table">
+                        <thead>
+                            <tr>
+                                <th>신청자</th>
+                                <th>연락처</th>
+                                <th>학반</th>
+                                <th>Riot ID</th>
+                                <th>현재 티어</th>
+                                <th>최대 티어</th>
+                                <th>신청일</th>
+                                <th>상태</th>
+                            </tr>
+                        </thead>
+                        <tbody id="applicant-list">
+                            <!-- 동적으로 채워짐 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="terms" class="tab-content" style="display: none;">
+                <h2>약관 및 안내사항 관리</h2>
+                <div class="form-box">
+                    <form id="terms-form">
+                        <div class="form-group">
+                            <label for="terms-check">확인할 사항</label>
+                            <textarea id="terms-check" name="terms-check" rows="8"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="terms-conditions">대회 참가 약관</label>
+                            <textarea id="terms-conditions" name="terms-conditions" rows="8"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="terms-coc">경기 중 행동 강령</label>
+                            <textarea id="terms-coc" name="terms-coc" rows="8"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="terms-privacy">개인정보 처리방침</label>
+                            <textarea id="terms-privacy" name="terms-privacy" rows="8"></textarea>
+                        </div>
+                        <button type="submit" class="btn">약관 저장</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 DPS Team. All rights reserved.</p>
+    </footer>
+
+    <script type="module" src="js/admin.js"></script>
+
+    <!-- Custom Modal -->
+    <div class="modal-overlay" id="custom-modal">
+        <div class="modal-popup">
+            <div class="modal-spinner" id="modal-spinner"></div>
+            <p id="modal-message"></p>
+            <button class="btn btn-small" id="modal-close-btn">확인</button>
+        </div>
+    </div>
+</body>
+</html>
