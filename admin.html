@@ -8,14 +8,16 @@
     <title>DPS VALORANT CHAMPIONS</title>
     <meta property="og:image" content="assets/logo.png">
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <header>
         <nav class="top-nav">
             <div class="nav-container">
                 <a href="index.html" class="logo">ADMIN - DPS VALORANT</a>
-                <ul class="nav-links">
-                    <li><a href="index.html">홈으로</a></li>
+                <ul class="nav-links" id="nav-links">
+                    <li><a href="index.html">홈</a></li>
+                    <li><a href="apply.html">대회 신청</a></li>
                 </ul>
             </div>
         </nav>
@@ -31,6 +33,25 @@
             </div>
 
             <div id="applications" class="tab-content active">
+                <div id="stats-container">
+                    <div class="stat-box">
+                        <h3>총 신청자</h3>
+                        <p id="total-applicants">0</p>
+                    </div>
+                    <div class="chart-container">
+                        <h3>반별 신청자</h3>
+                        <canvas id="class-chart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3>현재 티어 분포</h3>
+                        <canvas id="current-tier-chart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3>최대 티어 분포</h3>
+                        <canvas id="peak-tier-chart"></canvas>
+                    </div>
+                </div>
+
                 <h2>참가 신청 목록</h2>
                 <div class="table-container">
                     <table class="applicant-table">
