@@ -1,5 +1,5 @@
 import { db } from './firebase-config.js';
-import { collection, getDocs, query, orderBy, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+import { collection, getDocs, query, orderBy, doc, getDoc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
 document.addEventListener('DOMContentLoaded', async () => {
     // Modal elements
@@ -53,7 +53,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             tabContents.forEach(c => c.style.display = 'none');
             if (target) {
                 target.style.display = 'block';
-                // If switching to the terms tab, load the data
                 if (tab.dataset.tab === 'terms') {
                     loadTermsData();
                 }
@@ -70,7 +69,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
 
-        // If a chart instance already exists on this canvas, destroy it
         if (canvas.chart) {
             canvas.chart.destroy();
         }
@@ -85,24 +83,23 @@ document.addEventListener('DOMContentLoaded', async () => {
                         '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',
                         '#E7E9ED', '#839192', '#C39BD3', '#F7DC6F', '#76D7C4', '#85C1E9'
                     ],
-                    borderWidth: 0, // Remove border to prevent minor overflow
+                    borderWidth: 0,
                 }]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false, // This is better for fitting into a container
+                maintainAspectRatio: false,
                 plugins: {
                     legend: {
                         position: 'top',
                         labels: {
-                            color: '#ffffff' // Set legend text color to white
+                            color: '#ffffff'
                         }
                     },
                 }
             }
         });
 
-        // Store the new chart instance on the canvas element
         canvas.chart = chart;
     };
 
@@ -155,14 +152,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             if (statsContainer) statsContainer.style.display = 'grid';
-            applicantListBody.innerHTML = ''; // Clear loading message
+            applicantListBody.innerHTML = '';
 
             const applicants = [];
             querySnapshot.forEach(doc => {
                 const data = doc.data();
+                data.id = doc.id;
                 applicants.push(data);
 
                 const newRow = applicantListBody.insertRow();
+                newRow.dataset.id = data.id; // Add data-id to the row
+                newRow.style.cursor = 'pointer'; // Change cursor to indicate it's clickable
+
                 const date = data.createdAt.toDate();
                 const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 
@@ -176,6 +177,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <td>${formattedDate}</td>
                     <td>${data.status || 'pending'}</td>
                 `;
+
+                newRow.addEventListener('click', () => {
+                    if (confirm('정말로 이 신청자를 삭제하시겠습니까?')) {
+                        deleteApplicant(data.id);
+                    }
+                });
             });
 
             updateStatistics(applicants);
@@ -184,6 +191,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.error("Error fetching documents: ", error);
             applicantListBody.innerHTML = '<tr><td colspan="8">데이터를 불러오는 중 오류가 발생했습니다.</td></tr>';
             if (statsContainer) statsContainer.style.display = 'none';
+        }
+    };
+
+    const deleteApplicant = async (id) => {
+        showModal('삭제 중...', true);
+        try {
+            await deleteDoc(doc(db, "applications", id));
+            showModal('성공적으로 삭제되었습니다.');
+            loadApplicants(); // Refresh the list
+        } catch (error) {
+            console.error("Error deleting document: ", error);
+            showModal('삭제 중 오류가 발생했습니다.');
         }
     };
 
