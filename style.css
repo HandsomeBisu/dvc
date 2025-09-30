@@ -52,6 +52,12 @@
     }
 }
 
+@keyframes stroke {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
 @keyframes ticker-scroll {
     0% {
         transform: translateX(0);
@@ -284,6 +290,18 @@ main h2 {
     box-shadow: inset 0px 0px 0px var(--accent-color);
 }
 
+.error-x {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    display: block;
+    stroke-width: 4;
+    stroke: #f44336;
+    stroke-miterlimit: 10;
+    margin: 0 auto;
+    box-shadow: inset 0px 0px 0px #f44336;
+}
+
 .success-checkmark__circle {
     stroke-dasharray: 166;
     stroke-dashoffset: 166;
@@ -304,6 +322,27 @@ main h2 {
 .success-text-content {
     opacity: 0; /* Initially hidden */
     animation: fadeInUp 0.8s ease-out 0.9s forwards; /* Delayed fade in */
+}
+
+.error-x__circle {
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  stroke-width: 2;
+  stroke-miterlimit: 10;
+  stroke: #f44336;
+  fill: none;
+  animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.error-x__x {
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-miterlimit: 10;
+  stroke: #f44336;
+  fill: none;
+  animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
 }
 
 

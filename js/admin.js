@@ -44,7 +44,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     const tabContents = document.querySelectorAll('.tab-content');
 
     tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
+        tab.addEventListener('click', (e) => {
+            if (tab.hasAttribute('href')) {
+                return; // Let the browser handle the navigation
+            }
+
+            e.preventDefault();
+
             const target = document.getElementById(tab.dataset.tab);
 
             tabs.forEach(t => t.classList.remove('active'));
@@ -138,7 +144,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const loadApplicants = async () => {
         if (!applicantListBody) return;
-        applicantListBody.innerHTML = '<tr><td colspan="8">불러오는 중...</td></tr>';
+        applicantListBody.innerHTML = '<tr><td colspan="9">불러오는 중...</td></tr>';
         if (statsContainer) statsContainer.style.display = 'none';
 
         try {
@@ -146,7 +152,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const querySnapshot = await getDocs(q);
 
             if (querySnapshot.empty) {
-                applicantListBody.innerHTML = '<tr><td colspan="8">신청자가 없습니다.</td></tr>';
+                applicantListBody.innerHTML = '<tr><td colspan="9">신청자가 없습니다.</td></tr>';
                 if (statsContainer) statsContainer.style.display = 'none';
                 return;
             }
@@ -161,11 +167,26 @@ document.addEventListener('DOMContentLoaded', async () => {
                 applicants.push(data);
 
                 const newRow = applicantListBody.insertRow();
-                newRow.dataset.id = data.id; // Add data-id to the row
-                newRow.style.cursor = 'pointer'; // Change cursor to indicate it's clickable
+                newRow.dataset.id = data.id;
 
                 const date = data.createdAt.toDate();
                 const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+
+                const gradeSelect = document.createElement('select');
+                gradeSelect.classList.add('grade-select');
+                for (let i = 1; i <= 5; i++) {
+                    const option = document.createElement('option');
+                    option.value = i;
+                    option.textContent = `${i}등급`;
+                    if (data.grade == i) {
+                        option.selected = true;
+                    }
+                    gradeSelect.appendChild(option);
+                }
+
+                gradeSelect.addEventListener('change', (e) => {
+                    updateApplicantGrade(data.id, e.target.value);
+                });
 
                 newRow.innerHTML = `
                     <td>${data.applicantName || ''}</td>
@@ -175,22 +196,30 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <td>${data.currentTier || ''}</td>
                     <td>${data.peakTier || ''}</td>
                     <td>${formattedDate}</td>
+                    <td></td>
                     <td>${data.status || 'pending'}</td>
                 `;
-
-                newRow.addEventListener('click', () => {
-                    if (confirm('정말로 이 신청자를 삭제하시겠습니까?')) {
-                        deleteApplicant(data.id);
-                    }
-                });
+                newRow.cells[7].appendChild(gradeSelect);
             });
 
             updateStatistics(applicants);
 
         } catch (error) {
             console.error("Error fetching documents: ", error);
-            applicantListBody.innerHTML = '<tr><td colspan="8">데이터를 불러오는 중 오류가 발생했습니다.</td></tr>';
+            applicantListBody.innerHTML = '<tr><td colspan="9">데이터를 불러오는 중 오류가 발생했습니다.</td></tr>';
             if (statsContainer) statsContainer.style.display = 'none';
+        }
+    };
+
+    const updateApplicantGrade = async (id, grade) => {
+        showModal('등급 업데이트 중...', true);
+        try {
+            const applicantRef = doc(db, 'applications', id);
+            await setDoc(applicantRef, { grade: parseInt(grade, 10) }, { merge: true });
+            showModal('등급이 성공적으로 업데이트되었습니다.');
+        } catch (error) {
+            console.error('Error updating grade: ', error);
+            showModal('등급 업데이트 중 오류가 발생했습니다.');
         }
     };
 

@@ -1,0 +1,52 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="assets/logo.png" type="image/png">
+    <title>DPS VALORANT CHAMPIONS - 등급표</title>
+    <meta property="og:image" content="assets/logo.png">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="tier.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+</head>
+<body>
+    <header>
+        <nav class="top-nav">
+            <div class="nav-container">
+                <a href="index.html" class="logo">DPS VALORANT CHAMPIONS</a>
+                <ul class="nav-links" id="nav-links">
+                    <li><a href="index.html">홈</a></li>
+                    <li><a href="apply.html">대회 신청</a></li>
+                    <li><a href="tier.html">등급표</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="container">
+            <h1>신청자 등급표</h1>
+            <div class="search-bar-container">
+                <input type="text" id="search-bar" placeholder="이름 또는 Riot ID로 검색">
+                <button id="search-button" class="search-button">
+                    <span class="material-symbols-outlined">search</span>
+                </button>
+            </div>
+            <div id="grades-container" class="grades-container">
+                <!-- 등급별 신청자 목록이 여기에 동적으로 채워집니다. -->
+            </div>
+            <div id="no-results-message" class="no-results-message" style="display: none;">
+                <p>검색 결과가 없습니다.</p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 DPS Team. All rights reserved.</p>
+    </footer>
+
+    <script type="module" src="js/tier.js"></script>
+</body>
+</html>
