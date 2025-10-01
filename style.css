@@ -899,3 +899,92 @@ main h2 {
     height: 320px; /* Give canvas a defined height */
     padding: 1rem;
 }
+
+/* Team Management Styles */
+#team-lists-container {
+    margin-top: 2rem;
+}
+
+.team-group {
+    background-color: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.team-group-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--primary-text-color);
+    margin: 0 0 1.5rem 0;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 1rem;
+}
+
+.team-group ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.team-group li {
+    padding: 0.5rem 0;
+    color: var(--secondary-text-color);
+    font-size: 1rem;
+}
+
+.applicant-checkbox-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    background-color: var(--background-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.applicant-checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background-color: var(--surface-color);
+    padding: 0.75rem;
+    border-radius: 6px;
+}
+
+.applicant-checkbox-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+}
+
+.applicant-checkbox-item label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--primary-text-color);
+}
+
+.team-group-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 1rem;
+}
+
+.team-group-header .team-group-title {
+    margin: 0;
+    border: none;
+    padding: 0;
+}
+
+.btn.btn-danger {
+    background-color: #f44336;
+}
+
+.btn.btn-danger:hover {
+    background-color: #d32f2f;
+}

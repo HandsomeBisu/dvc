@@ -61,6 +61,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 target.style.display = 'block';
                 if (tab.dataset.tab === 'terms') {
                     loadTermsData();
+                } else if (tab.dataset.tab === 'teams') {
+                    loadTeams();
                 }
             }
         });
@@ -274,6 +276,246 @@ document.addEventListener('DOMContentLoaded', async () => {
             } catch (error) {
                 console.error("Error saving terms: ", error);
                 showModal('저장 중 오류가 발생했습니다.');
+            }
+        });
+    }
+
+    // Team management logic
+    const manualTeamForm = document.getElementById('manual-team-form');
+    const teamMembersList = document.getElementById('team-members-list');
+    const autoFormTeamsBtn = document.getElementById('auto-form-teams-btn');
+    const teamListsContainer = document.getElementById('team-lists-container');
+
+    const loadAvailableApplicants = async () => {
+        if (!teamMembersList) return;
+        teamMembersList.innerHTML = '<p>불러오는 중...</p>';
+
+        try {
+            const q = query(collection(db, "applications"));
+            const querySnapshot = await getDocs(q);
+            const applicants = [];
+            querySnapshot.forEach(doc => {
+                const data = doc.data();
+                data.id = doc.id;
+                if (data.grade && !data.team) { // Graded but not in a team
+                    applicants.push(data);
+                }
+            });
+
+            teamMembersList.innerHTML = '';
+            if (applicants.length === 0) {
+                teamMembersList.innerHTML = '<p>팀에 추가할 수 있는 신청자가 없습니다.</p>';
+                return;
+            }
+
+            applicants.forEach(applicant => {
+                const item = document.createElement('div');
+                item.classList.add('applicant-checkbox-item');
+                item.innerHTML = `
+                    <input type="checkbox" id="${applicant.id}" value='${JSON.stringify(applicant)}'>
+                    <label for="${applicant.id}">${applicant.applicantName} (${applicant.grade}등급)</label>
+                `;
+                teamMembersList.appendChild(item);
+            });
+
+        } catch (error) {
+            console.error("Error fetching available applicants: ", error);
+            teamMembersList.innerHTML = '<p>신청자 정보를 불러오는 중 오류가 발생했습니다.</p>';
+        }
+    };
+
+    const loadTeams = async () => {
+        if (!teamListsContainer) return;
+        teamListsContainer.innerHTML = '<p>팀 목록을 불러오는 중...</p>';
+        loadAvailableApplicants(); // Load available applicants for the form
+
+        try {
+            const q = query(collection(db, "teams"), orderBy("name", "asc"));
+            const querySnapshot = await getDocs(q);
+
+            if (querySnapshot.empty) {
+                teamListsContainer.innerHTML = '<p>생성된 팀이 없습니다.</p>';
+                return;
+            }
+
+            teamListsContainer.innerHTML = '';
+            querySnapshot.forEach(doc => {
+                const team = doc.data();
+                const teamElement = document.createElement('div');
+                teamElement.classList.add('team-group');
+                let membersHtml = team.members.map(m => `<li>${m.name} (${m.riotId}) - ${m.grade}등급</li>`).join('');
+                teamElement.innerHTML = `
+                    <div class="team-group-header">
+                        <h3 class="team-group-title">${team.name}</h3>
+                        <button class="btn btn-small btn-danger delete-team-btn" data-team-name="${team.name}">삭제</button>
+                    </div>
+                    <ul>${membersHtml}</ul>
+                `;
+                teamListsContainer.appendChild(teamElement);
+            });
+
+            // Add event listeners for delete buttons
+            document.querySelectorAll('.delete-team-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const teamName = e.target.dataset.teamName;
+                    if (confirm(`'${teamName}' 팀을 정말로 삭제하시겠습니까? 팀에 속한 모든 팀원들이 팀 없는 상태로 변경됩니다.`)) {
+                        deleteTeam(teamName);
+                    }
+                });
+            });
+
+        } catch (error) {
+            console.error("Error fetching teams: ", error);
+            teamListsContainer.innerHTML = '<p>팀 목록을 불러오는 중 오류가 발생했습니다.</p>';
+        }
+    };
+
+    const deleteTeam = async (teamName) => {
+        showModal('팀 삭제 중...', true);
+        try {
+            // Delete the team document
+            await deleteDoc(doc(db, "teams", teamName));
+
+            // Find all applicants in that team and update their status
+            const q = query(collection(db, "applications"));
+            const querySnapshot = await getDocs(q);
+            querySnapshot.forEach(async (document) => {
+                const data = document.data();
+                if (data.team === teamName) {
+                    const applicantRef = doc(db, "applications", document.id);
+                    await setDoc(applicantRef, { team: null }, { merge: true });
+                }
+            });
+
+            showModal('팀이 성공적으로 삭제되었습니다.');
+            loadTeams(); // Refresh the lists
+
+        } catch (error) {
+            console.error("Error deleting team: ", error);
+            showModal('팀 삭제 중 오류가 발생했습니다.');
+        }
+    };
+
+    const autoFormTeams = async () => {
+        showModal('팀 구성 중...', true);
+
+        try {
+            const q = query(collection(db, "applications"));
+            const querySnapshot = await getDocs(q);
+            const applicants = [];
+            querySnapshot.forEach(doc => {
+                const data = doc.data();
+                data.id = doc.id;
+                if (data.grade && !data.team) { // Consider only graded applicants not in a team
+                    applicants.push(data);
+                }
+            });
+
+            if (applicants.length < 5) {
+                showModal('팀을 구성하기에 신청자 수가 부족합니다.');
+                return;
+            }
+
+            // Shuffle applicants to ensure randomness
+            for (let i = applicants.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [applicants[i], applicants[j]] = [applicants[j], applicants[i]];
+            }
+
+            const teams = [];
+            let teamIndex = 1;
+            while (applicants.length >= 5) {
+                const teamMembers = applicants.splice(0, 5);
+                const teamName = `팀 ${teamIndex}`;
+                const teamData = {
+                    name: teamName,
+                    members: teamMembers.map(m => ({
+                        id: m.id, // Keep track of id for updating status
+                        name: m.applicantName,
+                        riotId: m.riotId,
+                        grade: m.grade
+                    }))
+                };
+                teams.push(teamData);
+                teamIndex++;
+            }
+
+            // Save teams to Firestore and update applicant statuses
+            for (const team of teams) {
+                const teamRef = doc(db, 'teams', team.name);
+                // Don't save member id to team document
+                const membersForTeamDoc = team.members.map(({ id, ...rest }) => rest);
+                await setDoc(teamRef, { name: team.name, members: membersForTeamDoc });
+
+                for (const member of team.members) {
+                    const applicantRef = doc(db, 'applications', member.id);
+                    await setDoc(applicantRef, { team: team.name }, { merge: true });
+                }
+            }
+
+            showModal(`${teams.length}개의 팀이 성공적으로 구성되었습니다.`);
+            loadTeams(); // Refresh the team list
+
+        } catch (error) {
+            console.error("Error forming teams: ", error);
+            showModal('팀 구성 중 오류가 발생했습니다.');
+        }
+    };
+
+    if (autoFormTeamsBtn) {
+        autoFormTeamsBtn.addEventListener('click', autoFormTeams);
+    }
+
+    if (manualTeamForm) {
+        manualTeamForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const teamNameInput = document.getElementById('team-name');
+            const teamName = teamNameInput.value.trim();
+            if (!teamName) {
+                showModal('팀 이름을 입력해주세요.');
+                return;
+            }
+
+            const selectedCheckboxes = teamMembersList.querySelectorAll('input[type="checkbox"]:checked');
+            if (selectedCheckboxes.length !== 5) {
+                showModal('팀원은 반드시 5명을 선택해야 합니다.');
+                return;
+            }
+
+            showModal('팀 생성 중...', true);
+
+            const teamMembers = [];
+            selectedCheckboxes.forEach(checkbox => {
+                teamMembers.push(JSON.parse(checkbox.value));
+            });
+
+            const teamData = {
+                name: teamName,
+                members: teamMembers.map(m => ({
+                    name: m.applicantName,
+                    riotId: m.riotId,
+                    grade: m.grade
+                }))
+            };
+
+            try {
+                // Save team to Firestore
+                const teamRef = doc(db, 'teams', teamName);
+                await setDoc(teamRef, teamData);
+
+                // Update applicant statuses
+                for (const member of teamMembers) {
+                    const applicantRef = doc(db, 'applications', member.id);
+                    await setDoc(applicantRef, { team: teamName }, { merge: true });
+                }
+
+                showModal('팀이 성공적으로 생성되었습니다.');
+                teamNameInput.value = ''; // Clear form
+                loadTeams(); // Refresh lists
+
+            } catch (error) {
+                console.error("Error creating team: ", error);
+                showModal('팀 생성 중 오류가 발생했습니다.');
             }
         });
     }

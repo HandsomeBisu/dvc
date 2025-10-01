@@ -18,6 +18,8 @@
                 <ul class="nav-links" id="nav-links">
                     <li><a href="index.html">홈</a></li>
                     <li><a href="apply.html">대회 신청</a></li>
+                    <li><a href="tier.html">등급표</a></li>
+                    <li><a href="team.html">팀 목록</a></li>
                 </ul>
             </div>
         </nav>
@@ -30,6 +32,8 @@
             <div class="tabs">
                 <a href="admin.html" class="tab-link active">참가 신청 관리</a>
                 <a href="tier.html" class="tab-link">등급별 분류</a>
+                <a href="team.html" class="tab-link">팀 목록</a>
+                <button class="tab-link" data-tab="teams">팀 관리</button>
                 <button class="tab-link" data-tab="terms">약관 관리</button>
             </div>
 
@@ -73,6 +77,31 @@
                             <!-- 동적으로 채워짐 -->
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+            <div id="teams" class="tab-content" style="display: none;">
+                <h2>팀 관리</h2>
+                <div class="form-box">
+                    <form id="manual-team-form">
+                        <h3>수동으로 팀 만들기</h3>
+                        <div class="form-group">
+                            <label for="team-name">팀 이름</label>
+                            <input type="text" id="team-name" name="team-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="team-members">팀원 선택 (5명)</label>
+                            <div id="team-members-list" class="applicant-checkbox-list"></div>
+                        </div>
+                        <button type="submit" class="btn">팀 만들기</button>
+                    </form>
+                </div>
+                <div class="form-box">
+                    <h3>자동으로 팀 구성</h3>
+                    <button id="auto-form-teams-btn" class="btn">자동으로 팀 구성</button>
+                </div>
+                <div id="team-lists-container">
+                    <!-- 팀 목록이 여기에 동적으로 채워집니다. -->
                 </div>
             </div>
 
