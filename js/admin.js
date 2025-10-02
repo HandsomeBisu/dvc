@@ -63,6 +63,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     loadTermsData();
                 } else if (tab.dataset.tab === 'teams') {
                     loadTeams();
+                } else if (tab.dataset.tab === 'matches') {
+                    loadMatches();
                 }
             }
         });
@@ -395,6 +397,163 @@ document.addEventListener('DOMContentLoaded', async () => {
             showModal('팀 삭제 중 오류가 발생했습니다.');
         }
     };
+
+    // Match management logic
+    const matchListBody = document.getElementById('match-list');
+    const matchFormContainer = document.getElementById('match-form-container');
+    const matchForm = document.getElementById('match-form');
+    const addMatchBtn = document.getElementById('add-match-btn');
+    const cancelMatchEditBtn = document.getElementById('cancel-match-edit');
+
+    const loadMatches = async () => {
+        if (!matchListBody) return;
+        matchListBody.innerHTML = '<tr><td colspan="4">불러오는 중...</td></tr>';
+        loadTeamsForMatchForm(); // Load teams for the form dropdowns
+
+        try {
+            const q = query(collection(db, "matches"), orderBy("matchDateTime"));
+            const querySnapshot = await getDocs(q);
+
+            if (querySnapshot.empty) {
+                matchListBody.innerHTML = '<tr><td colspan="4">생성된 경기가 없습니다.</td></tr>';
+                return;
+            }
+
+            matchListBody.innerHTML = '';
+            querySnapshot.forEach(doc => {
+                const match = { id: doc.id, ...doc.data() };
+                const row = matchListBody.insertRow();
+                const date = match.matchDateTime ? new Date(match.matchDateTime).toLocaleString('ko-KR') : '미정';
+                row.innerHTML = `
+                    <td>${date}</td>
+                    <td>${match.team1 || 'TBD'}</td>
+                    <td>${match.team2 || 'TBD'}</td>
+                    <td>
+                        <button class="btn btn-small edit-match-btn" data-id="${match.id}">수정</button>
+                        <button class="btn btn-small btn-danger delete-match-btn" data-id="${match.id}">삭제</button>
+                    </td>
+                `;
+            });
+
+            // Add event listeners for edit and delete buttons
+            document.querySelectorAll('.edit-match-btn').forEach(btn => {
+                btn.addEventListener('click', () => editMatch(btn.dataset.id));
+            });
+            document.querySelectorAll('.delete-match-btn').forEach(btn => {
+                btn.addEventListener('click', () => deleteMatch(btn.dataset.id));
+            });
+
+        } catch (error) {
+            console.error("Error fetching matches: ", error);
+            matchListBody.innerHTML = '<tr><td colspan="4">경기 목록을 불러오는 중 오류가 발생했습니다.</td></tr>';
+        }
+    };
+
+    const loadTeamsForMatchForm = async () => {
+        const teamSelects = [document.getElementById('match-team1'), document.getElementById('match-team2')];
+        try {
+            const q = query(collection(db, "teams"), orderBy("name"));
+            const querySnapshot = await getDocs(q);
+            const teams = querySnapshot.docs.map(doc => doc.data().name);
+
+            teamSelects.forEach(select => {
+                if (!select) return;
+                const currentVal = select.value;
+                select.innerHTML = '<option value="">미정</option>'; // TBD option
+                teams.forEach(teamName => {
+                    const option = document.createElement('option');
+                    option.value = teamName;
+                    option.textContent = teamName;
+                    select.appendChild(option);
+                });
+                select.value = currentVal;
+            });
+        } catch (error) {
+            console.error("Error fetching teams for form: ", error);
+        }
+    };
+
+    const resetMatchForm = () => {
+        matchForm.reset();
+        document.getElementById('match-id').value = '';
+        matchFormContainer.style.display = 'none';
+        addMatchBtn.style.display = 'block';
+    };
+
+    if (addMatchBtn) {
+        addMatchBtn.addEventListener('click', () => {
+            resetMatchForm();
+            matchFormContainer.style.display = 'block';
+            addMatchBtn.style.display = 'none';
+        });
+    }
+
+    if (cancelMatchEditBtn) {
+        cancelMatchEditBtn.addEventListener('click', resetMatchForm);
+    }
+
+    if (matchForm) {
+        matchForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('match-id').value;
+            const matchDateTime = document.getElementById('match-datetime').value;
+            const team1 = document.getElementById('match-team1').value;
+            const team2 = document.getElementById('match-team2').value;
+
+            const matchData = { matchDateTime, team1, team2 };
+
+            showModal('저장 중...', true);
+            try {
+                const docRef = id ? doc(db, 'matches', id) : doc(collection(db, 'matches'));
+                await setDoc(docRef, matchData, { merge: true });
+                showModal('경기가 성공적으로 저장되었습니다.');
+                resetMatchForm();
+                loadMatches();
+            } catch (error) {
+                console.error('Error saving match:', error);
+                showModal('경기 저장 중 오류가 발생했습니다.');
+            }
+        });
+    }
+
+    const editMatch = async (id) => {
+        showModal('경기 정보 로딩 중...', true);
+        try {
+            const docRef = doc(db, 'matches', id);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                const match = docSnap.data();
+                document.getElementById('match-id').value = id;
+                document.getElementById('match-datetime').value = match.matchDateTime;
+                document.getElementById('match-team1').value = match.team1;
+                document.getElementById('match-team2').value = match.team2;
+
+                matchFormContainer.style.display = 'block';
+                addMatchBtn.style.display = 'none';
+                hideModal();
+            } else {
+                showModal('해당 경기를 찾을 수 없습니다.');
+            }
+        } catch (error) {
+            console.error('Error fetching match for edit:', error);
+            showModal('경기 정보를 불러오는 중 오류가 발생했습니다.');
+        }
+    };
+
+    const deleteMatch = async (id) => {
+        if (!confirm('정말로 이 경기를 삭제하시겠습니까?')) return;
+
+        showModal('삭제 중...', true);
+        try {
+            await deleteDoc(doc(db, 'matches', id));
+            showModal('경기가 성공적으로 삭제되었습니다.');
+            loadMatches();
+        } catch (error) {
+            console.error('Error deleting match:', error);
+            showModal('경기 삭제 중 오류가 발생했습니다.');
+        }
+    };
+
 
     const autoFormTeams = async () => {
         showModal('팀 구성 중...', true);

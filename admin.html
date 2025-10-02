@@ -20,6 +20,7 @@
                     <li><a href="apply.html">대회 신청</a></li>
                     <li><a href="tier.html">등급표</a></li>
                     <li><a href="team.html">팀 목록</a></li>
+                    <li><a href="match.html">대진표</a></li>
                 </ul>
             </div>
         </nav>
@@ -34,6 +35,7 @@
                 <a href="tier.html" class="tab-link">등급별 분류</a>
                 <a href="team.html" class="tab-link">팀 목록</a>
                 <button class="tab-link" data-tab="teams">팀 관리</button>
+                <button class="tab-link" data-tab="matches">대진표 관리</button>
                 <button class="tab-link" data-tab="terms">약관 관리</button>
             </div>
 
@@ -102,6 +104,45 @@
                 </div>
                 <div id="team-lists-container">
                     <!-- 팀 목록이 여기에 동적으로 채워집니다. -->
+                </div>
+            </div>
+
+            <div id="matches" class="tab-content" style="display: none;">
+                <h2>대진표 관리</h2>
+                <div class="form-box" id="match-form-container" style="display: none;">
+                    <form id="match-form">
+                        <input type="hidden" id="match-id" name="match-id">
+                        <div class="form-group">
+                            <label for="match-datetime">경기 날짜 및 시간</label>
+                            <input type="datetime-local" id="match-datetime" name="match-datetime" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="match-team1">팀 1</label>
+                            <select id="match-team1" name="match-team1"></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="match-team2">팀 2</label>
+                            <select id="match-team2" name="match-team2"></select>
+                        </div>
+                        <button type="submit" class="btn">경기 저장</button>
+                        <button type="button" id="cancel-match-edit" class="btn btn-danger">취소</button>
+                    </form>
+                </div>
+                <button id="add-match-btn" class="btn">새 경기 추가</button>
+                <div class="table-container" style="margin-top: 2rem;">
+                    <table class="applicant-table">
+                        <thead>
+                            <tr>
+                                <th>경기 일시</th>
+                                <th>팀 1</th>
+                                <th>팀 2</th>
+                                <th>관리</th>
+                            </tr>
+                        </thead>
+                        <tbody id="match-list">
+                            <!-- 대진표 목록이 여기에 동적으로 채워집니다. -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
 

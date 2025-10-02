@@ -1,0 +1,56 @@
+/* Match Page Specific Styles */
+
+.tournament-bracket {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem; /* Gap between matches */
+    margin-top: 2rem;
+}
+
+.match {
+    background-color: var(--surface-color);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    padding: 1.5rem 2rem;
+    width: 100%;
+    max-width: 600px;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.match:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.match-teams {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.8rem; /* Larger font for team names */
+    font-weight: 600;
+    color: var(--primary-text-color);
+}
+
+.team-name {
+    flex: 1;
+}
+
+.vs-separator {
+    flex: 0 1 auto;
+    padding: 0 1.5rem;
+    font-size: 1.2rem;
+    font-weight: 400;
+    color: var(--accent-color);
+}
+
+.match-datetime {
+    margin-top: 1rem;
+    font-size: 1rem;
+    color: var(--secondary-text-color);
+}
+
+.center-container {
+    text-align: center;
+}
