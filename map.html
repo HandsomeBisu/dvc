@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>DPS VALORANT CHAMPIONS</title>
+  <style>
+    :root{
+      --bg:#0b0b0f;--accent:#e9c75d;--danger:#e74c3c;--success:#10b981;--muted:#999;--panel:#141414;
+      font-family:'Rajdhani','Pretendard',sans-serif;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:#fff;overflow-x:hidden;}
+
+    #setupOverlay{position:fixed;inset:0;background:rgba(0,0,0,.9);display:flex;align-items:center;justify-content:center;z-index:50;}
+    #setupOverlay form{background:var(--panel);padding:40px;border-radius:12px;text-align:center;width:320px;box-shadow:0 0 20px rgba(0,0,0,.6);}
+    #setupOverlay input{width:100%;padding:10px;margin-top:10px;border:none;border-radius:6px;font-size:16px;text-align:center;}
+    #setupOverlay button{margin-top:20px;background:var(--accent);color:#000;border:none;padding:10px 20px;border-radius:8px;font-weight:700;cursor:pointer;}
+
+    header{text-align:center;padding:24px 0;background:linear-gradient(180deg,#111,#0b0b0f);border-bottom:2px solid #1c1c1c;}
+    header h1{font-size:28px;font-weight:800;letter-spacing:1px;color:var(--accent);}
+    header h2{font-size:22px;font-weight:700;margin-top:6px;}
+    .phase{text-align:center;font-size:16px;margin-top:10px;color:var(--muted);}
+
+    .maps{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;padding:30px 20px;}
+    .map{width:160px;height:240px;position:relative;border-radius:10px;overflow:hidden;cursor:pointer;background:#1a1a1a;display:flex;flex-direction:column;justify-content:flex-end;transition:transform .2s ease,filter .2s ease;}
+    .map img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.6);transition:filter .2s ease;}
+    .map:hover{transform:translateY(-5px);} .map:hover img{filter:brightness(.8);}
+    .map .info{position:relative;z-index:2;padding:10px;background:rgba(0,0,0,.6);}
+    .map .name{font-weight:700;letter-spacing:.5px;font-size:15px;}
+    .map .status{font-size:12px;color:var(--muted);}
+    .map.banned img{filter:grayscale(.8) brightness(.3);} .map.banned::after{content:"✕";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--danger);font-size:80px;opacity:.7;z-index:1;}
+    .map.picked{border:3px solid var(--success);}
+    .map .badge{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.7);padding:4px 10px;border-radius:6px;font-size:12px;z-index:2;}
+
+    #resultScreen{display:none;text-align:center;padding:60px 20px;}
+    #resultScreen h2{font-size:32px;font-weight:800;color:var(--accent);margin-bottom:40px;}
+    #resultMaps{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;}
+  </style>
+</head>
+<body>
+  <div id="setupOverlay">
+    <form id="setupForm">
+      <h2>팀 이름 입력</h2>
+      <input type="text" id="teamAInput" placeholder="A" required>
+      <input type="text" id="teamBInput" placeholder="B" required>
+      <button type="submit">시작</button>
+    </form>
+  </div>
+
+  <header>
+    <h1 id="matchTitle">TEAM A VS TEAM B</h1>
+    <div class="phase">현재 단계: <span id="phaseLabel">대기 중</span></div>
+  </header>
+
+  <div class="maps" id="mapContainer"></div>
+
+  <div id="resultScreen">
+    <h2 id="resultTitle">밴픽 결과</h2>
+    <div id="resultMaps"></div>
+  </div>
+
+  <script>
+    const mapList=[
+      {name:"바인드",img:"assets/bind.jpg"},
+      {name:"헤이븐",img:"assets/haven.webp"},
+      {name:"어센트",img:"assets/ascent.jpg"},
+      {name:"로터스",img:"assets/Lotus.webp"},
+      {name:"선셋",img:"assets/Sunset.jpg"},
+      {name:"어비스",img:"assets/Abyss.webp"},
+      {name:"코로드",img:"assets/corrode.webp"}
+    ];
+
+    const phases=[
+      {type:'ban',team:'A'},{type:'ban',team:'B'},
+      {type:'pick',team:'A'},{type:'pick',team:'B'},
+      {type:'ban',team:'A'},{type:'ban',team:'B'}
+    ];
+
+    let teamA='TEAM A',teamB='TEAM B',phaseIndex=0;
+    let state=mapList.map(m=>({...m,status:'free',by:null}));
+
+    document.getElementById('setupForm').addEventListener('submit',e=>{
+      e.preventDefault();
+      teamA=document.getElementById('teamAInput').value.trim()||'TEAM A';
+      teamB=document.getElementById('teamBInput').value.trim()||'TEAM B';
+      document.getElementById('matchTitle').textContent=`${teamA} VS ${teamB}`;
+      document.getElementById('setupOverlay').style.display='none';
+      renderMaps();updatePhase();
+    });
+
+    function renderMaps(){
+      const c=document.getElementById('mapContainer');
+      c.innerHTML='';
+      state.forEach((m,i)=>{
+        const div=document.createElement('div');
+        div.className='map '+(m.status!=='free'?m.status:'');
+        div.innerHTML=`<img src="${m.img}"><div class='badge'>${m.by?`${m.by==='A'?teamA:teamB} ${m.status.toUpperCase()}`:''}</div><div class='info'><div class='name'>${m.name}</div><div class='status'>${m.status==='free'?'선택 가능':(m.by==='A'?teamA:teamB)+' '+(m.status==='banned'?'BAN':'PICK')}</div></div>`;
+        div.addEventListener('click',()=>selectMap(i));
+        c.appendChild(div);
+      });
+    }
+
+    function updatePhase(){
+      const label=document.getElementById('phaseLabel');
+      if(phaseIndex<phases.length){
+        const p=phases[phaseIndex];
+        label.textContent=`${p.team==='A'?teamA:teamB}의 ${p.type.toUpperCase()} 단계`;
+      }else{
+        label.textContent='결과 화면';showResult();
+      }
+    }
+
+    function selectMap(i){
+      const p=phases[phaseIndex];
+      if(!p)return;
+      const m=state[i];
+      if(m.status!=='free')return;
+      m.status=p.type==='ban'?'banned':'picked';
+      m.by=p.team;
+      renderMaps();
+      phaseIndex++;
+      if(phaseIndex>=phases.length){
+        const remaining=state.filter(x=>x.status==='free');
+        if(remaining.length===1)remaining[0].status='decider';
+        updatePhase();
+      }else updatePhase();
+    }
+
+    function showResult(){
+      document.getElementById('mapContainer').style.display='none';
+      document.getElementById('resultScreen').style.display='block';
+      document.getElementById('resultTitle').textContent=`${teamA} VS ${teamB}`;
+      const res=document.getElementById('resultMaps');
+      res.innerHTML='';
+      const ordered=[...state.filter(x=>x.status==='banned'&&x.by==='A'),...state.filter(x=>x.status==='banned'&&x.by==='B'),...state.filter(x=>x.status==='picked'&&x.by==='A'),...state.filter(x=>x.status==='picked'&&x.by==='B'),...state.filter(x=>x.status==='decider')];
+      ordered.forEach(m=>{
+        const d=document.createElement('div');
+        d.className='map '+(m.status!=='free'?m.status:'');
+        const label=m.status==='decider'?'DECIDER':`${m.by==='A'?teamA:teamB} ${m.status.toUpperCase()}`;
+        d.innerHTML=`<img src='${m.img}'><div class='badge'>${label}</div><div class='info'><div class='name'>${m.name}</div></div>`;
+        res.appendChild(d);
+      });
+    }
+  </script>
+</body>
+</html>
